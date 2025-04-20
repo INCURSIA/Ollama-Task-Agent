@@ -2,3 +2,7 @@ agent.py
 dump.py
 memory.json
 testing.py
+images
+uploads
+image_model.py
+__pycache__

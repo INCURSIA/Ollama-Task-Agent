@@ -1,154 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Gugu Gaga Chat</title>
+  <meta charset="UTF-8">
+  <title>Multimodal AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .chat-box {
-      width: 100%;
-      max-width: 600px;
-      background: #fff;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      border-radius: 20px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 10px;
-    }
-
-    .chat-window {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      height: 400px;
-      overflow-y: auto;
-      padding-right: 10px;
-      scroll-behavior: smooth;
-    }
-
-    .bubble {
-      padding: 12px 18px;
-      border-radius: 18px;
-      max-width: 75%;
-      line-height: 1.4;
-      font-size: 15px;
-      position: relative;
-      opacity: 0;
-      animation: fadeIn 0.4s forwards;
-    }
-
-    .user {
-      background: #d1e7dd;
-      align-self: flex-end;
-      color: #0b5138;
-    }
-
-    .bot {
-      background: #f8d7da;
-      align-self: flex-start;
-      color: #842029;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-    }
-
-    .input-container {
-      display: flex;
-      margin-top: 15px;
-      gap: 10px;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 16px;
-      border: 1px solid #ccc;
-      border-radius: 30px;
-      font-size: 15px;
-      outline: none;
-      transition: border 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: #5c6bc0;
-    }
-
-    button {
-      background: #5c6bc0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       color: white;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
     }
-
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      width: 500px;
+    }
+    input[type="file"], textarea {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+    }
+    button {
+      margin-top: 20px;
+      background: #00c6ff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      color: black;
+      cursor: pointer;
+      transition: 0.3s;
+    }
     button:hover {
-      background: #3f51b5;
+      background: #0072ff;
+      color: white;
+    }
+    #response {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="chat-box">
-    <h2>🤖 Gugu Gaga Chat</h2>
-    <div class="chat-window" id="chatWindow"></div>
-    <div class="input-container">
-      <input type="text" id="queryInput" placeholder="Ask me something..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
+  <h1>🧠 Multimodal AI Assistant</h1>
+  <div class="card">
+    <form id="ai-form">
+      <label for="image">Upload Image:</label>
+      <input type="file" id="image" name="file"><br><br>
+      <label for="text">Enter Prompt:</label>
+      <textarea id="text" name="text" rows="4" placeholder="What would you like the AI to do?"></textarea><br>
+      <button type="submit">Send to AI</button>
+    </form>
+
+    <!-- New button for deleting memory -->
+    <button id="delete-btn">Delete Memory</button>
+
+    <div id="response"></div>
   </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("queryInput");
-      const query = input.value.trim();
-      if (!query) return;
+    const form = document.getElementById("ai-form");
+    const responseDiv = document.getElementById("response");
+    const deleteBtn = document.getElementById("delete-btn");
 
-      addMessage(query, "user");
-      input.value = "";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      responseDiv.textContent = "Thinking... 🔄";
 
-      const res = await fetch("/chat", {
+      const res = await fetch("/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query })
+        body: formData,
       });
 
       const data = await res.json();
-      addMessage(data.response, "bot");
-    }
+      responseDiv.textContent = data.response || "No response";
+    });
 
-    function addMessage(text, type) {
-      const msg = document.createElement("div");
-      msg.className = `bubble ${type}`;
-      msg.innerText = text;
-      document.getElementById("chatWindow").appendChild(msg);
+    // Event listener for delete button
+    deleteBtn.addEventListener("click", async () => {
+      const res = await fetch("/delete-memory", { method: "POST" });
 
-      const chatWindow = document.getElementById("chatWindow");
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+      if (res.ok) {
+        responseDiv.textContent = "Memory file deleted successfully.";
+      } else {
+        responseDiv.textContent = "Failed to delete memory.";
+      }
+    });
   </script>
 </body>
 </html>

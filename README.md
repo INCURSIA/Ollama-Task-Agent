@@ -4,7 +4,7 @@ This project uses an Ollama-based LLM to perform simple desktop tasks like:
 
 - Telling the time
 - Deleting files
-- Opening YouTube
+- Opening YouTube based on image provided
 
 ## Code in Progress
 
